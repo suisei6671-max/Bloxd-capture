@@ -8,8 +8,7 @@ init();
 
 function init() {
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffffff);
-
+  scene.background = null;
   camera = new THREE.PerspectiveCamera(
     35,
     window.innerWidth / window.innerHeight,
@@ -35,9 +34,10 @@ function init() {
 }
 
 function addLights() {
-  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-  const dir = new THREE.DirectionalLight(0xffffff, 0.6);
-  dir.position.set(5, 10, 5);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+
+  const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+  dir.position.set(3, 5, 4);
   scene.add(dir);
 }
 
