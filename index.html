@@ -2,7 +2,16 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>glTF Capture</title>
+  <title>Bloxd capture</title>
+
+  <!-- ★ これを追加 -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+    }
+  }
+  </script>
 </head>
 <body>
   <input type="file" id="file" accept=".gltf,.glb" />
