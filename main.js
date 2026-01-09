@@ -58,16 +58,37 @@ window.addEventListener("DOMContentLoaded", () => {
     loader.load(url, (gltf) => {
       scene.clear();
       addLights();
-
+    
       const model = gltf.scene;
       scene.add(model);
-
+    
+      // ===== モデルサイズ計算 =====
       const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
       const center = box.getCenter(new THREE.Vector3());
+    
+      // 中央寄せ
       model.position.sub(center);
-
+    
+      // ===== カメラ自動調整 =====
+      const maxSize = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+    
+      let cameraZ = maxSize / (2 * Math.tan(fov / 2));
+      cameraZ *= 1.3; // ← 少し余白を持たせる
+    
+      camera.position.set(
+        center.x,
+        center.y + maxSize * 0.2,
+        cameraZ
+      );
+    
+      camera.lookAt(0, 0, 0);
+      camera.updateProjectionMatrix();
+    
       setTimeout(takeScreenshot, 100);
     });
+
   });
 });
 
