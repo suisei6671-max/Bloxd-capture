@@ -54,7 +54,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!file) return;
 
     const url = URL.createObjectURL(file);
-
+    
     loader.load(url, (gltf) => {
       scene.clear();
       addLights();
@@ -62,25 +62,35 @@ window.addEventListener("DOMContentLoaded", () => {
       const model = gltf.scene;
       scene.add(model);
     
-      // ===== モデルサイズ計算 =====
+      // ===== BoundingSphere を使う =====
       const box = new THREE.Box3().setFromObject(model);
-      const size = box.getSize(new THREE.Vector3());
       const center = box.getCenter(new THREE.Vector3());
+      const sphere = box.getBoundingSphere(new THREE.Sphere());
     
       // 中央寄せ
       model.position.sub(center);
     
-      // ===== カメラ自動調整 =====
-      const maxSize = Math.max(size.x, size.y, size.z);
-      const fov = camera.fov * (Math.PI / 180);
+      // ===== 正方形キャプチャ前提 =====
+      const SIZE = 512;
+      renderer.setSize(SIZE, SIZE, false);
     
-      let cameraZ = maxSize / (2 * Math.tan(fov / 2));
-      cameraZ *= 1.3; // ← 少し余白を持たせる
+      camera.aspect = 1; // ← ★最重要
+      camera.updateProjectionMatrix();
     
+      // ===== 縦横両対応の距離計算 =====
+      const fovY = THREE.MathUtils.degToRad(camera.fov);
+      const fovX = 2 * Math.atan(Math.tan(fovY / 2) * camera.aspect);
+    
+      const distanceY = sphere.radius / Math.tan(fovY / 2);
+      const distanceX = sphere.radius / Math.tan(fovX / 2);
+    
+      const distance = Math.max(distanceX, distanceY) * 1.25;
+    
+      // ===== 少し斜め上から =====
       camera.position.set(
-        center.x,
-        center.y + maxSize * 0.2,
-        cameraZ
+        distance * 0.6,
+        distance * 0.6,
+        distance
       );
     
       camera.lookAt(0, 0, 0);
@@ -88,6 +98,7 @@ window.addEventListener("DOMContentLoaded", () => {
     
       setTimeout(takeScreenshot, 100);
     });
+
 
   });
 });
