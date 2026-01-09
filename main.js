@@ -46,27 +46,28 @@ function animate() {
 
 const fileInput = document.getElementById("file");
 
-fileInput.addEventListener("change", () => {
-  const file = fileInput.files[0];
-  if (!file) return;
+window.addEventListener("DOMContentLoaded", () => {
+  const fileInput = document.getElementById("file");
 
-  const url = URL.createObjectURL(file);
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
 
-  loader.load(url, (gltf) => {
-    // シーンをリセット
-    scene.clear();
-    addLights();
+    const url = URL.createObjectURL(file);
 
-    const model = gltf.scene;
-    scene.add(model);
+    loader.load(url, (gltf) => {
+      scene.clear();
+      addLights();
 
-    // モデルを中央に寄せる
-    const box = new THREE.Box3().setFromObject(model);
-    const center = box.getCenter(new THREE.Vector3());
-    model.position.sub(center);
+      const model = gltf.scene;
+      scene.add(model);
 
-    // 描画が1フレーム終わった後にスクショ
-    setTimeout(takeScreenshot, 100);
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      model.position.sub(center);
+
+      setTimeout(takeScreenshot, 100);
+    });
   });
 });
 
