@@ -2,6 +2,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
 import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
 
 let scene, camera, renderer;
+const loader = new GLTFLoader();
 
 init();
 
@@ -16,24 +17,65 @@ function init() {
     100
   );
 
-  // 🔒 視点固定（添付画像っぽい斜め上）
+  // 視点固定
   camera.position.set(2, 2.5, 4);
   camera.lookAt(0, 1, 0);
 
-  renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    preserveDrawingBuffer: true
+  });
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
-  // ライト
+  addLights();
+  animate();
+}
+
+function addLights() {
   scene.add(new THREE.AmbientLight(0xffffff, 0.8));
   const dir = new THREE.DirectionalLight(0xffffff, 0.6);
   dir.position.set(5, 10, 5);
   scene.add(dir);
-
-  animate();
 }
 
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
+
+const fileInput = document.getElementById("file");
+
+fileInput.addEventListener("change", () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const url = URL.createObjectURL(file);
+
+  loader.load(url, (gltf) => {
+    // シーンをリセット
+    scene.clear();
+    addLights();
+
+    const model = gltf.scene;
+    scene.add(model);
+
+    // モデルを中央に寄せる
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    model.position.sub(center);
+
+    // 描画が1フレーム終わった後にスクショ
+    setTimeout(takeScreenshot, 100);
+  });
+});
+
+function takeScreenshot() {
+  const dataURL = renderer.domElement.toDataURL("image/png");
+
+  const a = document.createElement("a");
+  a.href = dataURL;
+  a.download = "gltf_screenshot.png";
+  a.click();
+}
+
