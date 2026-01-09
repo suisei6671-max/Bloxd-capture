@@ -2,16 +2,14 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>GLBスクリーンショットツール</title>
+  <title>glTF Screenshot Tool</title>
   <style>
-    body { margin: 0; background: #222; color: #fff; font-family: sans-serif; text-align: center; }
-    canvas { display: block; margin: auto; background: #000; }
-    input { margin: 2rem; }
+    body { margin: 0; overflow: hidden; }
+    input { position: fixed; top: 10px; left: 10px; z-index: 10; }
   </style>
 </head>
 <body>
-  <h1>GLBスクリーンショットツール</h1>
-  <input type="file" id="fileInput" multiple accept=".glb" />
+  <input type="file" id="file" accept=".gltf,.glb" />
   <script type="module" src="./script.js"></script>
 </body>
 </html>
