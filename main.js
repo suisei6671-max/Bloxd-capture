@@ -23,8 +23,10 @@ function init() {
 
   renderer = new THREE.WebGLRenderer({
     antialias: true,
+    alpha: true,              // ★追加
     preserveDrawingBuffer: true
   });
+  
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
@@ -62,35 +64,32 @@ window.addEventListener("DOMContentLoaded", () => {
       const model = gltf.scene;
       scene.add(model);
     
-      // ===== BoundingSphere を使う =====
+      // ===== BoundingSphere =====
       const box = new THREE.Box3().setFromObject(model);
       const center = box.getCenter(new THREE.Vector3());
       const sphere = box.getBoundingSphere(new THREE.Sphere());
     
-      // 中央寄せ
       model.position.sub(center);
     
-      // ===== 正方形キャプチャ前提 =====
+      // ===== 正方形 & 透過 =====
       const SIZE = 512;
       renderer.setSize(SIZE, SIZE, false);
     
-      camera.aspect = 1; // ← ★最重要
+      camera.aspect = 1;
       camera.updateProjectionMatrix();
     
-      // ===== 縦横両対応の距離計算 =====
-      const fovY = THREE.MathUtils.degToRad(camera.fov);
-      const fovX = 2 * Math.atan(Math.tan(fovY / 2) * camera.aspect);
+      // ===== カメラ距離 =====
+      const fov = THREE.MathUtils.degToRad(camera.fov);
+      const distance = sphere.radius / Math.tan(fov / 2) * 1.3;
     
-      const distanceY = sphere.radius / Math.tan(fovY / 2);
-      const distanceX = sphere.radius / Math.tan(fovX / 2);
+      // ===== Minecraft専用角度 =====
+      const yaw = THREE.MathUtils.degToRad(45);   // 左右
+      const pitch = THREE.MathUtils.degToRad(35); // 上下
     
-      const distance = Math.max(distanceX, distanceY) * 1.25;
-    
-      // ===== 少し斜め上から =====
       camera.position.set(
-        distance * 0.6,
-        distance * 0.6,
-        distance
+        Math.sin(yaw) * Math.cos(pitch) * distance,
+        Math.sin(pitch) * distance,
+        Math.cos(yaw) * Math.cos(pitch) * distance
       );
     
       camera.lookAt(0, 0, 0);
@@ -98,7 +97,6 @@ window.addEventListener("DOMContentLoaded", () => {
     
       setTimeout(takeScreenshot, 100);
     });
-
 
   });
 });
